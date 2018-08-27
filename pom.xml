@@ -1,0 +1,841 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2018 Flexpoint Tech Ltd. All rights reserved. -->
+
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>tech.flexpoint</groupId>
+    <artifactId>demo</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.0.4.RELEASE</version>
+    </parent>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
+                <configuration>
+                    <source>10</source>
+                    <target>10</target>
+                </configuration>
+                <dependencies>
+                    <dependency> <!-- due to https://stackoverflow.com/questions/49398894/unable-to-compile-simple-java-10-project-with-maven, should be removed later -->
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm</artifactId>
+                        <version>6.2</version> <!-- Use newer version of ASM -->
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.moditect</groupId>
+                <artifactId>moditect-maven-plugin</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <id>add-module-info-to-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>add-module-info</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/modules</outputDirectory>
+                            <overwriteExistingFiles>true</overwriteExistingFiles>
+                            <modules>
+                                <!-- Direct dependencies -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.bouncycastle</groupId>
+                                        <artifactId>bcprov-jdk15on</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module org.bouncycastle.provider {
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- org.bouncycastle.provider -->
+                                <module>
+                                    <artifact>
+                                        <groupId>com.fasterxml.jackson.core</groupId>
+                                        <artifactId>jackson-core</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module com.fasterxml.jackson.core {
+                                        exports com.fasterxml.jackson.core;
+                                        exports com.fasterxml.jackson.core.type;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- com.fasterxml.jackson.core -->
+                                <module>
+                                    <artifact>
+                                        <groupId>com.fasterxml.jackson.core</groupId>
+                                        <artifactId>jackson-databind</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module com.fasterxml.jackson.databind {
+                                        requires com.fasterxml.jackson.core;
+                                        exports com.fasterxml.jackson.databind.module;
+                                        exports com.fasterxml.jackson.databind;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- com.fasterxml.jackson.databind -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.hibernate</groupId>
+                                        <artifactId>hibernate-core</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module hibernate.core {
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- hibernate.core -->
+                                <module>
+                                    <artifact>
+                                        <groupId>io.sentry</groupId>
+                                        <artifactId>sentry</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module io.sentry {
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- io.sentry -->
+                                <module>
+                                    <artifact>
+                                        <groupId>io.sentry</groupId>
+                                        <artifactId>sentry-spring</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module io.sentry.spring {
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- io.sentry.spring -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.hibernate.javax.persistence</groupId>
+                                        <artifactId>hibernate-jpa-2.1-api</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module java.persistence {
+                                        exports javax.persistence;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- java.persistence -->
+                                <module>
+                                    <artifact>
+                                        <groupId>javax.validation</groupId>
+                                        <artifactId>validation-api</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module java.validation {
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- java.validation -->
+                                <module>
+                                    <artifact>
+                                        <groupId>javax.inject</groupId>
+                                        <artifactId>javax.inject</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module javax.inject {
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- javax.inject -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.apache.commons</groupId>
+                                        <artifactId>commons-lang3</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module org.apache.commons.lang3 {
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- org.apache.commons.lang3 -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.slf4j</groupId>
+                                        <artifactId>slf4j-api</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module slf4j.api {
+                                        exports org.slf4j;
+                                        exports org.slf4j.spi;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- slf4j.api -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework</groupId>
+                                        <artifactId>spring-beans</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.beans {
+                                        exports org.springframework.beans.factory.wiring;
+                                        exports org.springframework.beans;
+                                        exports org.springframework.beans.factory;
+                                        exports org.springframework.beans.factory.annotation;
+                                        exports org.springframework.beans.factory.config;
+                                        exports org.springframework.beans.factory.support;
+                                        exports org.springframework.beans.factory.parsing;
+                                        exports org.springframework.beans.factory.xml;
+                                        exports org.springframework.beans.propertyeditors;
+                                        exports org.springframework.beans.support;
+                                        requires java.desktop;
+                                        requires spring.core;
+                                        requires spring.jcl;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.beans -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework</groupId>
+                                        <artifactId>spring-core</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.core {
+                                        exports org.springframework.cglib.reflect;
+                                        exports org.springframework.util.comparator;
+                                        exports org.springframework.asm;
+                                        exports org.springframework.cglib.core;
+                                        exports org.springframework.cglib.proxy;
+                                        exports org.springframework.cglib.transform;
+                                        exports org.springframework.core;
+                                        exports org.springframework.core.annotation;
+                                        exports org.springframework.core.convert;
+                                        exports org.springframework.core.convert.converter;
+                                        exports org.springframework.core.convert.support;
+                                        exports org.springframework.core.env;
+                                        exports org.springframework.core.io;
+                                        exports org.springframework.core.io.support;
+                                        exports org.springframework.core.type;
+                                        exports org.springframework.core.type.filter;
+                                        exports org.springframework.core.type.classreading;
+                                        exports org.springframework.objenesis;
+                                        exports org.springframework.util;
+                                        exports org.springframework.util.xml;
+                                        requires aspectjweaver;
+                                        requires java.desktop;
+                                        requires java.management;
+                                        requires java.xml;
+                                        requires spring.jcl;
+                                        }
+                                    </moduleInfoSource> <!-- - - add-opens=java.base/java.lang=spring.core -->
+                                </module> <!-- spring.core -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework</groupId>
+                                        <artifactId>spring-web</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.web {
+                                        exports org.springframework.http;
+                                        exports org.springframework.web.filter;
+                                        exports org.springframework.web;
+                                        exports org.springframework.web.cors;
+                                        exports org.springframework.web.context;
+                                        exports org.springframework.web.context.support;
+                                        //exports org.springframework.web.servlet;
+                                        requires spring.context;
+                                        requires spring.core;
+                                        requires java.naming;
+                                        requires spring.jcl;
+                                        requires spring.beans;
+                                        requires tomcat.embed.core;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.web -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework.boot</groupId>
+                                        <artifactId>spring-boot</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.boot {
+                                        exports org.springframework.boot.builder;
+                                        exports org.springframework.boot.cloud;
+                                        exports org.springframework.boot.context.annotation;
+                                        exports org.springframework.boot.context.config;
+                                        exports org.springframework.boot.context.event;
+                                        exports org.springframework.boot.context.logging;
+                                        exports org.springframework.boot.context.properties.bind;
+                                        exports org.springframework.boot.context.properties;
+                                        exports org.springframework.boot.context;
+                                        exports org.springframework.boot.env;
+                                        exports org.springframework.boot.jdbc;
+                                        exports org.springframework.boot.liquibase;
+                                        exports org.springframework.boot.logging;
+                                        exports org.springframework.boot.system;
+                                        exports org.springframework.boot.type.classreading;
+                                        exports org.springframework.boot.web.context;
+                                        exports org.springframework.boot.web.embedded.tomcat;
+                                        exports org.springframework.boot.web.reactive.context;
+                                        exports org.springframework.boot.web.server;
+                                        exports org.springframework.boot.web.servlet.context;
+                                        exports org.springframework.boot.web.servlet.error;
+                                        exports org.springframework.boot.web.servlet.server;
+                                        exports org.springframework.boot.web.servlet;
+                                        exports org.springframework.boot;
+                                        opens org.springframework.boot to spring.core;
+                                        opens org.springframework.boot.context.properties to spring.beans, spring.core;
+                                        opens org.springframework.boot.diagnostics to spring.core;
+                                        opens org.springframework.boot.logging.java;
+                                        opens org.springframework.boot.web.servlet.context;
+                                        requires com.fasterxml.jackson.core;
+                                        requires com.fasterxml.jackson.databind;
+                                        requires java.desktop;
+                                        requires java.logging;
+                                        requires java.management;
+                                        requires java.security.jgss;
+                                        requires spring.aop;
+                                        requires spring.beans;
+                                        requires spring.context;
+                                        requires spring.core;
+                                        requires spring.jcl;
+                                        requires spring.jdbc;
+                                        requires spring.web;
+                                        requires spring.webmvc;
+                                        requires tomcat.embed.core;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.boot -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework.boot</groupId>
+                                        <artifactId>spring-boot-autoconfigure</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.boot.autoconfigure {
+                                        exports org.springframework.boot.autoconfigure.condition;
+                                        requires tomcat.embed.core;
+                                        exports org.springframework.boot.autoconfigure.web;
+                                        exports org.springframework.boot.autoconfigure.web.servlet.error;
+                                        opens org.springframework.boot.autoconfigure.jackson;
+                                        exports org.springframework.boot.autoconfigure.jackson;
+                                        exports org.springframework.boot.autoconfigure.aop;
+                                        exports org.springframework.boot.autoconfigure.context;
+                                        exports org.springframework.boot.autoconfigure.freemarker;
+                                        exports org.springframework.boot.autoconfigure.groovy.template;
+                                        exports org.springframework.boot.autoconfigure.http.codec;
+                                        exports org.springframework.boot.autoconfigure.http;
+                                        exports org.springframework.boot.autoconfigure.jdbc.metadata;
+                                        exports org.springframework.boot.autoconfigure.jmx;
+                                        exports org.springframework.boot.autoconfigure.logging;
+                                        exports org.springframework.boot.autoconfigure.mustache;
+                                        exports org.springframework.boot.autoconfigure.security.reactive;
+                                        exports org.springframework.boot.autoconfigure.thymeleaf;
+                                        exports org.springframework.boot.autoconfigure.transaction;
+                                        exports org.springframework.boot.autoconfigure.web.client;
+                                        exports org.springframework.boot.autoconfigure.web.embedded;
+                                        exports org.springframework.boot.autoconfigure.web.servlet;
+                                        exports org.springframework.boot.autoconfigure;
+                                        opens org.springframework.boot.autoconfigure to spring.core;
+                                        opens org.springframework.boot.autoconfigure.aop to spring.core;
+                                        opens org.springframework.boot.autoconfigure.cache to spring.core;
+                                        opens org.springframework.boot.autoconfigure.condition to spring.core;
+                                        opens org.springframework.boot.autoconfigure.context to spring.core;
+                                        opens org.springframework.boot.autoconfigure.http to spring.core;
+                                        opens org.springframework.boot.autoconfigure.http.codec to spring.core;
+                                        opens org.springframework.boot.autoconfigure.info to spring.core;
+                                        opens org.springframework.boot.autoconfigure.jdbc to spring.core;
+                                        opens org.springframework.boot.autoconfigure.jdbc.metadata to spring.core;
+                                        opens org.springframework.boot.autoconfigure.jmx to spring.core;
+                                        opens org.springframework.boot.autoconfigure.security.reactive to spring.core;
+                                        opens org.springframework.boot.autoconfigure.transaction to spring.core;
+                                        opens org.springframework.boot.autoconfigure.web.client to spring.core;
+                                        opens org.springframework.boot.autoconfigure.web.embedded to spring.core;
+                                        opens org.springframework.boot.autoconfigure.web.servlet to spring.core;
+                                        opens org.springframework.boot.autoconfigure.web.servlet.error to spring.core;
+                                        opens org.springframework.boot.autoconfigure.web to spring.core;
+                                        requires java.sql;
+                                        requires spring.beans;
+                                        requires spring.boot;
+                                        requires spring.context;
+                                        requires spring.core;
+                                        requires spring.jcl;
+                                        requires spring.web;
+                                        requires spring.webmvc;
+                                        requires com.fasterxml.jackson.databind;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.boot.autoconfigure -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework</groupId>
+                                        <artifactId>spring-context</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.context {
+                                        opens org.springframework.context.support to spring.core;
+                                        //requires java.xml.ws.annotation;
+                                        requires java.naming;
+                                        exports org.springframework.validation.annotation;
+                                        exports org.springframework.ui.context.support;
+                                        exports org.springframework.validation;
+                                        exports org.springframework.jndi;
+                                        exports org.springframework.context.annotation;
+                                        exports org.springframework.context.event;
+                                        exports org.springframework.context.support;
+                                        exports org.springframework.context;
+                                        exports org.springframework.format.support;
+                                        exports org.springframework.format;
+                                        exports org.springframework.jmx.export.naming;
+                                        exports org.springframework.stereotype;
+                                        exports org.springframework.ui.context;
+                                        opens org.springframework.context.annotation to spring.core;
+                                        requires java.desktop;
+                                        requires spring.aop;
+                                        requires spring.beans;
+                                        requires spring.core;
+                                        requires spring.expression;
+                                        requires spring.jcl;
+                                        requires java.annotation;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.context -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework.data</groupId>
+                                        <artifactId>spring-data-commons</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.data.commons {
+                                        exports org.springframework.data.auditing.config;
+                                        exports org.springframework.data.config;
+                                        exports org.springframework.data.mapping.context;
+                                        exports org.springframework.data.mapping;
+                                        requires spring.beans;
+                                        requires spring.context;
+                                        requires spring.core;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.data.commons -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework.data</groupId>
+                                        <artifactId>spring-data-jpa</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.data.jpa {
+                                        exports org.springframework.data.jpa.domain.support;
+                                        opens org.springframework.data.jpa.repository.config to spring.core;
+                                        requires spring.aspects;
+                                        requires spring.beans;
+                                        requires spring.context;
+                                        requires spring.core;
+                                        requires spring.data.commons;
+                                        requires spring.orm;
+                                        requires java.persistence;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.data.jpa -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework</groupId>
+                                        <artifactId>spring-jdbc</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.jdbc {
+                                        exports org.springframework.jdbc.datasource.embedded;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.jdbc -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework.security</groupId>
+                                        <artifactId>spring-security-config</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.security.config {
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.security.config -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework.security</groupId>
+                                        <artifactId>spring-security-core</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.security.core {
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.security.core -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework</groupId>
+                                        <artifactId>spring-tx</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.tx {
+                                        exports org.springframework.dao.support;
+                                        exports org.springframework.transaction.annotation;
+                                        requires spring.context;
+                                        requires spring.core;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.tx -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework</groupId>
+                                        <artifactId>spring-webmvc</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.webmvc {
+                                        exports org.springframework.web.servlet;
+                                        exports org.springframework.web.servlet.config.annotation;
+                                        exports org.springframework.web.servlet.handler;
+                                        requires tomcat.embed.core;
+                                        requires spring.context;
+                                        requires spring.core;
+                                        requires spring.web;
+                                        requires spring.beans;
+                                        requires spring.jcl;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.webmvc -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.apache.tomcat.embed</groupId>
+                                        <artifactId>tomcat-embed-core</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource> <!-- - -add-opens=java.base/java.io=tomcat.embed.core -->
+                                        module tomcat.embed.core {
+                                        exports org.apache.catalina.session;
+                                        exports javax.servlet.http;
+                                        exports javax.servlet;
+                                        exports org.apache.catalina.connector;
+                                        exports org.apache.catalina.core;
+                                        exports org.apache.catalina.loader;
+                                        exports org.apache.catalina.startup;
+                                        exports org.apache.catalina.valves;
+                                        exports org.apache.catalina;
+                                        exports org.apache.coyote;
+                                        exports org.apache.tomcat.util.descriptor.web;
+                                        exports org.apache.tomcat.util.scan;
+                                        exports org.apache.tomcat;
+                                        requires java.desktop;
+                                        requires java.instrument;
+                                        requires java.logging;
+                                        requires java.management;
+                                        requires java.naming;
+                                        //requires java.xml.ws.annotation;
+                                        uses org.apache.juli.logging.Log;
+                                        exports org.apache.catalina.util;
+                                        requires java.annotation;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- tomcat.embed.core -->
+                                <!-- Dependencies of dependencies -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.aspectj</groupId>
+                                        <artifactId>aspectjweaver</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module aspectjweaver {
+                                        exports org.aspectj.lang.annotation;
+                                        exports org.aspectj.lang;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- aspectjweaver -->
+                                <module>
+                                    <artifact>
+                                        <groupId>com.fasterxml.jackson.core</groupId>
+                                        <artifactId>jackson-annotations</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module jackson.annotations {
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- jackson.annotations -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework</groupId>
+                                        <artifactId>spring-aop</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.aop {
+                                        exports org.springframework.aop.config;
+                                        exports org.springframework.aop.framework;
+                                        exports org.springframework.aop.framework.autoproxy;
+                                        exports org.springframework.aop.support;
+                                        exports org.springframework.aop.aspectj.annotation;
+                                        requires spring.beans;
+                                        requires spring.core;
+                                        requires spring.jcl;
+                                        requires aspectjweaver;
+                                        exports org.springframework.aop.scope;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.aop -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework</groupId>
+                                        <artifactId>spring-aspects</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.aspects {
+                                        exports org.springframework.beans.factory.aspectj;
+                                        opens org.springframework.beans.factory.aspectj;
+                                        requires spring.beans;
+                                        requires aspectjweaver;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.aspects -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework</groupId>
+                                        <artifactId>spring-expression</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.expression {
+                                        exports org.springframework.expression;
+                                        exports org.springframework.expression.spel;
+                                        exports org.springframework.expression.spel.standard;
+                                        exports org.springframework.expression.spel.support;
+                                        requires spring.core;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.expression -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework</groupId>
+                                        <artifactId>spring-jcl</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.jcl {
+                                        exports org.apache.commons.logging;
+                                        requires slf4j.api;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.jcl -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework</groupId>
+                                        <artifactId>spring-orm</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.orm {
+                                        exports org.springframework.orm.jpa;
+                                        exports org.springframework.orm.jpa.support;
+                                        opens org.springframework.orm.jpa;
+                                        requires spring.beans;
+                                        requires spring.core;
+                                        requires spring.tx;
+                                        requires java.persistence;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.jcl -->
+                                <module>
+                                    <artifact>
+                                        <groupId>org.springframework.boot</groupId>
+                                        <artifactId>spring-boot-devtools</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module spring.boot.devtools {
+                                        opens org.springframework.boot.devtools.autoconfigure to spring.core;
+                                        opens org.springframework.boot.devtools.restart to spring.core;
+                                        exports org.springframework.boot.devtools.restart;
+                                        exports org.springframework.boot.devtools.env;
+                                        requires spring.context;
+                                        requires spring.core;
+                                        requires spring.boot;
+                                        requires spring.jcl;
+                                        requires java.management;
+                                        requires java.desktop;
+                                        requires spring.beans;
+                                        requires spring.web;
+                                        requires spring.boot.autoconfigure;
+                                        requires java.sql;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- spring.boot.devtools -->
+                                <module>
+                                    <artifact>
+                                        <groupId>javax.annotation</groupId>
+                                        <artifactId>javax.annotation-api</artifactId>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module java.annotation {
+                                        exports javax.annotation;
+                                        exports javax.annotation.security;
+                                        }
+                                    </moduleInfoSource>
+                                </module> <!-- java.annotation -->
+                            </modules>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>create-runtime-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>create-runtime-image</goal>
+                        </goals>
+                        <configuration>
+                            <modulePath>
+                                <path>${project.build.directory}/classes</path>
+                                <path>${project.build.directory}/modules</path>
+                            </modulePath>
+                            <modules>
+                                <module>tech.flexpoint.demo</module>
+                            </modules>
+                            <launcher>
+                                <name>demo</name>
+                                <module>
+                                    tech.flexpoint.demo/tech.flexpoint.demo.DemoApplication
+                                </module>
+                            </launcher>
+                            <outputDirectory>
+                                ${project.build.directory}/jlink-image
+                            </outputDirectory>
+                            <ignoreSigningInformation>true</ignoreSigningInformation>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-new-relic-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.newrelic.agent.java</groupId>
+                                    <artifactId>newrelic-agent</artifactId>
+                                    <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
+                                    <destFileName>newrelic-agent.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin> <!-- https://stackoverflow.com/questions/51093236/whats-going-on-here-execution-default-test-of-goal-org-apache-maven-pluginsma -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.22.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <!-- served by tomcat-annotations-api instead -->
+                    <groupId>org.apache.tomcat.embed</groupId>
+                    <artifactId>tomcat-embed-el</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.2.4.jre7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.60</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>2.0.1.Final</version>
+        </dependency>
+        <dependency>  <!-- https://stackoverflow.com/questions/51088135/how-do-i-resolve-reading-package-javax-transaction-xa-from-both-javax-transactio?noredirect=1#comment89169483_51088135 -->
+            <groupId>javax.transaction</groupId>
+            <artifactId>javax.transaction-api</artifactId>
+            <version>1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>6.0.12.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>5.1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry-spring</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.newrelic.agent.java</groupId>
+            <artifactId>newrelic-agent</artifactId>
+            <version>4.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.7</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <version>5.0.7.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
+
+
